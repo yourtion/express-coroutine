@@ -1,0 +1,25 @@
+{
+  "name": "express-coroutine",
+  "version": "0.1.0",
+  "description": "Use generators with express.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourtion/express-coroutine.git"
+  },
+  "keywords": [
+    "express",
+    "co",
+    "coroutine",
+    "generators"
+  ],
+  "author": "Yourtion <yourtion@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourtion/express-coroutine/issues"
+  },
+  "homepage": "https://github.com/yourtion/express-coroutine#readme"
+}
