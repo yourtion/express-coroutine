@@ -57,7 +57,7 @@ function wrapAppMethod(route) {
 
 function wrapParamMethod(route) {
   return function (name, fn) {
-    let cb = fn;
+    const cb = fn;
 
     if (isGenerator(fn)) {
       cb = function (req, res, next, id) {
