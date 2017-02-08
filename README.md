@@ -16,7 +16,7 @@ const express = require('express-coroutine')(require('express'));
 const app = express();
 
 app.get('/user/:id', function* (req, res) {
-  var user = yield User.findById(req.params.id);
+  const user = yield User.findById(req.params.id);
   res.send(user);
 })
 

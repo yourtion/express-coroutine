@@ -112,6 +112,24 @@ it('works with app.route call', done => {
     });
 });
 
+it('works with route', done => {
+  const app = expressGenerators();
+  const router = new expressGenerators.Router();
+  app.use(router);
+
+  router.get('/', function* (req, res) {
+    res.send('it works!');
+  });
+
+  request(app)
+    .get('/')
+    .end((err, res) => {
+      assert.ifError(err);
+      assert.equal(res.text, 'it works!');
+      done();
+    });
+});
+
 it('accepts old function as middleware', done => {
   const app = expressGenerators();
 
