@@ -1,3 +1,5 @@
+'use strict';
+
 const http = require('http');
 const coroutine = require('lei-coroutine');
 const slice = Array.prototype.slice;
@@ -57,7 +59,7 @@ function wrapAppMethod(route) {
 
 function wrapParamMethod(route) {
   return function (name, fn) {
-    const cb = fn;
+    let cb = fn;
 
     if (isGenerator(fn)) {
       cb = function (req, res, next, id) {
