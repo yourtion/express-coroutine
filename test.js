@@ -6,6 +6,22 @@ const assert = require('assert');
 const expressGenerators = require('./index')(require('express'));
 const request = require('supertest');
 
+const fn = function (req, res, next) {
+  return new Promise((resolve, reject) => {
+    if (req.params.user !== 'a') return reject(new Error('Bang!'));
+    resolve('a');
+  });
+};
+
+const middleware1 = function* (req, res, next) {
+  yield fn(req, res, next);
+};
+
+const middleware2 = function (req, res, next) {
+  if (req.params.user !== 'a') return next(new Error('Bang!'));
+  next();
+};
+
 it('accepts generator as middleware', done => {
   const app = expressGenerators();
 
@@ -93,6 +109,74 @@ it('works with param method', done => {
   });
 
   request(app).get('/42').expect(200, done);
+});
+
+it('use multiple generator middleware', done => {
+  const app = expressGenerators();
+
+  app.get('/:user', middleware1, function* (req, res) {
+    res.send('it works!');
+  });
+
+  request(app)
+    .get('/a')
+    .end((err, res) => {
+      assert.ifError(err);
+      assert.equal(res.text, 'it works!');
+      done();
+    });
+});
+
+it('use function and generator middleware', done => {
+  const app = expressGenerators();
+
+  app.get('/:user', middleware2, function* (req, res) {
+    res.send('it works!');
+  });
+
+  request(app)
+    .get('/a')
+    .end((err, res) => {
+      assert.ifError(err);
+      assert.equal(res.text, 'it works!');
+      done();
+    });
+});
+
+it('pass throwed exception in generator middleware', done => {
+  const app = expressGenerators();
+
+  app.get('/:user',middleware1, function* () {
+    res.send('it works!');
+  });
+
+  /* eslint-disable no-unused-vars */
+  app.use((err, req, res, next) => {
+    assert.equal(err.message, 'Bang!');
+    res.sendStatus(500);
+    next();
+  });
+  /* eslint-enable no-unused-vars */
+
+  request(app).get('/b').expect(500, done);
+});
+
+it('pass throwed exception in function middleware', done => {
+  const app = expressGenerators();
+
+  app.get('/:user', middleware2, function* () {
+    res.send('it works!');
+  });
+
+  /* eslint-disable no-unused-vars */
+  app.use((err, req, res, next) => {
+    assert.equal(err.message, 'Bang!');
+    res.sendStatus(500);
+    next();
+  });
+  /* eslint-enable no-unused-vars */
+
+  request(app).get('/b').expect(500, done);
 });
 
 it('works with app.route call', done => {
