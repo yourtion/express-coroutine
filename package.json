@@ -1,6 +1,6 @@
 {
   "name": "express-coroutine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Use generators with express.",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/yourtion/express-coroutine#readme",
   "devDependencies": {
+    "coveralls": "^2.11.16",
     "express": "^4.14.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
