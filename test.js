@@ -214,6 +214,44 @@ it('works with route', done => {
     });
 });
 
+it('throwed when works with route and generator middleware', done => {
+  const app = expressGenerators();
+  const router = new expressGenerators.Router();
+  app.use(router);
+
+  router.get('/:user', middleware1, function* (req, res) {
+    res.send('it works!');
+  });
+
+  /* eslint-disable no-unused-vars */
+  app.use((err, req, res, next) => {
+    assert.equal(err.message, 'Bang!');
+    res.sendStatus(500);
+    next();
+  });
+  /* eslint-enable no-unused-vars */
+
+  request(app).get('/b').expect(500, done);
+});
+
+it('works with route and generator middleware', done => {
+  const app = expressGenerators();
+  const router = new expressGenerators.Router();
+  app.use(router);
+
+  router.get('/:user', middleware1, function* (req, res) {
+    res.send('it works!');
+  });
+
+  request(app)
+    .get('/a')
+    .end((err, res) => {
+      assert.ifError(err);
+      assert.equal(res.text, 'it works!');
+      done();
+    });
+});
+
 it('accepts old function as middleware', done => {
   const app = expressGenerators();
 
