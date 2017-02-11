@@ -7,7 +7,8 @@
     "test": "mocha test.js",
     "test-cov": "istanbul cover _mocha  -x 'test.js'",
     "test-coveralls": "npm run test-cov && cat ./coverage/lcov.info | coveralls",
-    "prepublish": "npm run test-coveralls"
+    "lint": "eslint index.js test.js --fix",
+    "prepublish": "npm run lint && npm run test-coveralls"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
   "homepage": "https://github.com/yourtion/express-coroutine#readme",
   "devDependencies": {
     "coveralls": "^2.11.16",
+    "eslint-config-guo": "^0.2.0",
     "express": "^4.14.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
