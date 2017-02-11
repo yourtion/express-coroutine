@@ -1,6 +1,6 @@
 {
   "name": "express-coroutine",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Use generators with express.",
   "main": "index.js",
   "scripts": {
