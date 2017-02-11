@@ -28,8 +28,8 @@ function isGenerator(v) {
 
 function getCurrentNodeMethods() {
   return http.METHODS && http.METHODS.map(method => {
-    return method.toLowerCase()
-  })
+    return method.toLowerCase();
+  });
 }
 
 function wrap(app) {
@@ -63,7 +63,6 @@ function wrapParamMethod(route) {
 
     if (isGenerator(fn)) {
       cb = function (req, res, next, id) {
-        // eslint-disable-next-line
         coroutine.wrap(fn).call(this, req, res, id).then(() => !res.finished && next(), next);
       };
     }
@@ -78,7 +77,6 @@ function convertGenerators(v) {
   }
 
   return function (req, res, next) {
-    // eslint-disable-next-line
     coroutine.wrap(v).call(this, req, res).then(() => !res.finished && next(), next);
   };
 }

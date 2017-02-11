@@ -1,11 +1,11 @@
 /* global it */
-
 'use strict';
 
 const assert = require('assert');
 const expressGenerators = require('./index')(require('express'));
 const request = require('supertest');
 
+// eslint-disable-next-line no-unused-vars
 const fn = function (req, res, next) {
   return new Promise((resolve, reject) => {
     if (req.params.user !== 'a') return reject(new Error('Bang!'));
@@ -65,13 +65,11 @@ it('pass throwed exception to error handler', done => {
     throw new Error('Bang!');
   });
 
-  /* eslint-disable no-unused-vars */
   app.use((err, req, res, next) => {
     assert.equal(err.message, 'Bang!');
     res.sendStatus(500);
     next();
   });
-  /* eslint-enable no-unused-vars */
 
   request(app).get('/').expect(500, done);
 });
@@ -85,14 +83,12 @@ it('pass throwed exception to error handler with code', done => {
     throw error;
   });
 
-  /* eslint-disable no-unused-vars */
   app.use((err, req, res, next) => {
     assert.equal(err.message, 'Bang!');
     assert.equal(err.code, -100);
     res.sendStatus(500);
     next();
   });
-  /* eslint-enable no-unused-vars */
 
   request(app).get('/').expect(500, done);
 });
@@ -146,17 +142,15 @@ it('use function and generator middleware', done => {
 it('pass throwed exception in generator middleware', done => {
   const app = expressGenerators();
 
-  app.get('/:user',middleware1, function* () {
+  app.get('/:user', middleware1, function* (req, res) {
     res.send('it works!');
   });
 
-  /* eslint-disable no-unused-vars */
   app.use((err, req, res, next) => {
     assert.equal(err.message, 'Bang!');
     res.sendStatus(500);
     next();
   });
-  /* eslint-enable no-unused-vars */
 
   request(app).get('/b').expect(500, done);
 });
@@ -164,17 +158,15 @@ it('pass throwed exception in generator middleware', done => {
 it('pass throwed exception in function middleware', done => {
   const app = expressGenerators();
 
-  app.get('/:user', middleware2, function* () {
+  app.get('/:user', middleware2, function* (req, res) {
     res.send('it works!');
   });
 
-  /* eslint-disable no-unused-vars */
   app.use((err, req, res, next) => {
     assert.equal(err.message, 'Bang!');
     res.sendStatus(500);
     next();
   });
-  /* eslint-enable no-unused-vars */
 
   request(app).get('/b').expect(500, done);
 });
@@ -223,13 +215,11 @@ it('throwed when works with route and generator middleware', done => {
     res.send('it works!');
   });
 
-  /* eslint-disable no-unused-vars */
   app.use((err, req, res, next) => {
     assert.equal(err.message, 'Bang!');
     res.sendStatus(500);
     next();
   });
-  /* eslint-enable no-unused-vars */
 
   request(app).get('/b').expect(500, done);
 });
