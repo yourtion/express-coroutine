@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('assert');
-const expressGenerators = require('./index')(require('express'));
+const expressCoroutine = require('./index')(require('express'));
 const request = require('supertest');
 
 // eslint-disable-next-line no-unused-vars
@@ -23,7 +23,7 @@ const middleware2 = function (req, res, next) {
 };
 
 it('accepts generator as middleware', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/', function* (req, res) {
     res.send('it works!');
@@ -39,7 +39,7 @@ it('accepts generator as middleware', done => {
 });
 
 it('does not call next middleware after res.send', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/', function* (req, res) {
     res.send('one');
@@ -59,7 +59,7 @@ it('does not call next middleware after res.send', done => {
 });
 
 it('pass throwed exception to error handler', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/', function* () {
     throw new Error('Bang!');
@@ -75,7 +75,7 @@ it('pass throwed exception to error handler', done => {
 });
 
 it('pass throwed exception to error handler with code', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/', function* () {
     const error = new Error('Bang!');
@@ -94,7 +94,7 @@ it('pass throwed exception to error handler with code', done => {
 });
 
 it('works with param method', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.param('user', function* (req, res, id) {
     assert.equal(id, 42);
@@ -108,7 +108,7 @@ it('works with param method', done => {
 });
 
 it('use multiple generator middleware', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/:user', middleware1, function* (req, res) {
     res.send('it works!');
@@ -124,7 +124,7 @@ it('use multiple generator middleware', done => {
 });
 
 it('use function and generator middleware', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/:user', middleware2, function* (req, res) {
     res.send('it works!');
@@ -140,7 +140,7 @@ it('use function and generator middleware', done => {
 });
 
 it('pass throwed exception in generator middleware', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/:user', middleware1, function* (req, res) {
     res.send('it works!');
@@ -156,7 +156,7 @@ it('pass throwed exception in generator middleware', done => {
 });
 
 it('pass throwed exception in function middleware', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/:user', middleware2, function* (req, res) {
     res.send('it works!');
@@ -172,7 +172,7 @@ it('pass throwed exception in function middleware', done => {
 });
 
 it('works with app.route call', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.route('/')
     .get(function* (req, res) {
@@ -189,8 +189,8 @@ it('works with app.route call', done => {
 });
 
 it('works with route', done => {
-  const app = expressGenerators();
-  const router = new expressGenerators.Router();
+  const app = expressCoroutine();
+  const router = new expressCoroutine.Router();
   app.use(router);
 
   router.get('/', function* (req, res) {
@@ -207,8 +207,8 @@ it('works with route', done => {
 });
 
 it('throwed when works with route and generator middleware', done => {
-  const app = expressGenerators();
-  const router = new expressGenerators.Router();
+  const app = expressCoroutine();
+  const router = new expressCoroutine.Router();
   app.use(router);
 
   router.get('/:user', middleware1, function* (req, res) {
@@ -225,8 +225,8 @@ it('throwed when works with route and generator middleware', done => {
 });
 
 it('works with route and generator middleware', done => {
-  const app = expressGenerators();
-  const router = new expressGenerators.Router();
+  const app = expressCoroutine();
+  const router = new expressCoroutine.Router();
   app.use(router);
 
   router.get('/:user', middleware1, function* (req, res) {
@@ -243,7 +243,7 @@ it('works with route and generator middleware', done => {
 });
 
 it('accepts old function as middleware', done => {
-  const app = expressGenerators();
+  const app = expressCoroutine();
 
   app.get('/', (req, res) => {
     res.send('it works!');
@@ -259,5 +259,5 @@ it('accepts old function as middleware', done => {
 });
 
 it('has static method', () => {
-  assert.equal(typeof expressGenerators.static, 'function');
+  assert.equal(typeof expressCoroutine.static, 'function');
 });
