@@ -5,6 +5,7 @@
 [![node version][node-image]][node-url]
 [![npm download][download-image]][download-url]
 [![npm license][license-image]][download-url]
+[![Greenkeeper badge](https://badges.greenkeeper.io/yourtion/express-coroutine.svg)](https://greenkeeper.io/)
 
 [npm-image]: https://img.shields.io/npm/v/express-coroutine.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/express-coroutine
