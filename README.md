@@ -22,6 +22,8 @@
 
 # express-coroutine
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/yourtion/express-coroutine.svg)](https://greenkeeper.io/)
+
 Use generator function with express like koa ( use lei-coroutine )
 
 ## Installation
