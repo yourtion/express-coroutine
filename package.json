@@ -1,7 +1,7 @@
 {
   "name": "express-coroutine",
-  "version": "1.0.1",
-  "description": "Use generators with express.",
+  "version": "1.0.2",
+  "description": "Generator function to be used as middlewares in express like koa.",
   "main": "index.js",
   "scripts": {
     "test": "mocha test.js",
