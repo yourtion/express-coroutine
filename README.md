@@ -23,9 +23,7 @@
 
 # express-coroutine
 
-Use generator function with express like koa ( use [lei-coroutine](https://github.com/leizongmin/lei-coroutine) )
-
-
+Generator function to be used as middlewares in express like koa. ( use [lei-coroutine](https://github.com/leizongmin/lei-coroutine) )
 
 ## Installation
 
