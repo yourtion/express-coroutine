@@ -23,15 +23,39 @@
 
 # express-coroutine
 
-Use generator function with express like koa ( use lei-coroutine )
+Use generator function with express like koa ( use [lei-coroutine](https://github.com/leizongmin/lei-coroutine) )
+
+
 
 ## Installation
 
 ```bash
-npm install express-coroutine
+npm install express-coroutine --save
 ```
 
 ## Usage
+
+### Init express
+
+```javascript
+const express = require('express-coroutine')(require('express'));
+const app = express();
+```
+
+### Init router
+
+```javascript
+const express = require('express-coroutine')(require('express'));
+const app = express();
+const router = new expressGenerators.Router();
+app.use(router);
+
+router.get('/', function* (req, res) {
+  res.send('it works!');
+});
+```
+
+Write your express routes by using generator functions as middlewares. 
 
 ```javascript
 const express = require('express-coroutine')(require('express'));
@@ -49,3 +73,24 @@ app.get('/error', function* (req, res) {
 
 app.listen(8000);
 ```
+
+You can also define multiple generator functions just the express way.
+
+```javascript
+const fn = function (req, res, next) {
+  return new Promise((resolve, reject) => {
+    if (req.params.user !== 'a') return reject(new Error('Bang!'));
+    resolve('a');
+  });
+};
+
+const middleware = function* (req, res, next) {
+  yield fn(req, res, next);
+};
+
+app.get('/:user', middleware, function* (req, res) {
+  res.send('it works!');
+});
+```
+
+More detail demo can be found in [test.js](test.js)
