@@ -92,3 +92,9 @@ app.get('/:user', middleware, function* (req, res) {
 ```
 
 More detail demo can be found in [test.js](test.js)
+
+### Get coroutine
+
+```javascript
+const coroutine = require('express-coroutine').coroutine;
+```
