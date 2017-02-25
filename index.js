@@ -5,21 +5,21 @@ const coroutine = require('lei-coroutine');
 const slice = Array.prototype.slice;
 
 module.exports = function (express) {
-  function expressGenerators() {
+  function expressCoroutine() {
     return wrap(express());
   }
 
-  expressGenerators.prototype = express;
+  expressCoroutine.prototype = express;
 
-  Object.assign(expressGenerators, express);
+  Object.assign(expressCoroutine, express);
 
   if (express.Router) {
-    expressGenerators.Router = function () {
+    expressCoroutine.Router = function () {
       return wrap(new express.Router());
     };
   }
 
-  return expressGenerators;
+  return expressCoroutine;
 };
 
 function isGenerator(v) {
