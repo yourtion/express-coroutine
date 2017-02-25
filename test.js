@@ -261,3 +261,8 @@ it('accepts old function as middleware', done => {
 it('has static method', () => {
   assert.equal(typeof expressCoroutine.static, 'function');
 });
+
+it('has coroutine export', () => {
+  assert.equal(typeof require('./index').coroutine, 'function');
+  assert.deepEqual(require('./index').coroutine, require('lei-coroutine'));
+});

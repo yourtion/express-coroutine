@@ -80,3 +80,5 @@ function convertGenerators(v) {
     coroutine.wrap(v).call(this, req, res).then(() => !res.finished && next(), next);
   };
 }
+
+module.exports.coroutine = coroutine;
