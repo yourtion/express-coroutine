@@ -45,7 +45,7 @@ const app = express();
 ```javascript
 const express = require('express-coroutine')(require('express'));
 const app = express();
-const router = new expressGenerators.Router();
+const router = new express.Router();
 app.use(router);
 
 router.get('/', function* (req, res) {

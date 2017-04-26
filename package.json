@@ -1,6 +1,6 @@
 {
   "name": "express-coroutine",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Generator function to be used as middlewares in express like koa.",
   "main": "index.js",
   "scripts": {
