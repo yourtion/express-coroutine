@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/yourtion/express-coroutine#readme",
   "devDependencies": {
-    "coveralls": "^2.11.16",
+    "coveralls": "^3.0.0",
     "eslint": "^4.1.0",
     "eslint-config-guo": "^0.6.0",
     "express": "^4.14.1",
