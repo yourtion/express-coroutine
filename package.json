@@ -30,11 +30,11 @@
     "async": "^2.6.0",
     "body-parser": "^1.18.2",
     "coveralls": "^2.11.16",
-    "eslint": "^3.15.0",
-    "eslint-config-guo": "^0.4.0",
+    "eslint": "^4.1.0",
+    "eslint-config-guo": "^0.6.0",
     "express": "^4.14.1",
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
+    "mocha": "^4.0.0",
     "supertest": "^3.0.0"
   },
   "dependencies": {
