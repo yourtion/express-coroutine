@@ -23,7 +23,7 @@
 
 # express-coroutine
 
-Generator function to be used as middlewares in express like koa. ( use [lei-coroutine](https://github.com/leizongmin/lei-coroutine) )
+Generator function and Async function to be used as middlewares in express like koa. ( use [lei-coroutine](https://github.com/leizongmin/lei-coroutine) )
 
 ## Installation
 
@@ -51,6 +51,11 @@ app.use(router);
 router.get('/', function* (req, res) {
   res.send('it works!');
 });
+
+// also async function
+router.get('/', async function (req, res) {
+  res.send('it works!');
+});
 ```
 
 Write your express routes by using generator functions as middlewares. 
@@ -67,6 +72,12 @@ app.get('/user/:id', function* (req, res) {
 
 app.get('/error', function* (req, res) {
   throw new Error('Bang!');
+});
+
+// also async function
+app.get('/user2/:id', async function* (req, res) {
+  const user = await User.findById(req.params.id);
+  res.send(user);
 });
 
 app.listen(8000);
@@ -86,7 +97,16 @@ const middleware = function* (req, res, next) {
   yield fn(req, res, next);
 };
 
+const middleware2 = async function (req, res, next) {
+  await fn(req, res, next);
+  next();
+};
+
 app.get('/:user', middleware, function* (req, res) {
+  res.send('it works!');
+});
+
+app.get('/:user', middleware2, async function (req, res) {
   res.send('it works!');
 });
 ```

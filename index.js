@@ -38,46 +38,71 @@ function wrap(app) {
     app[method] = wrapAppMethod(app[method]);
   });
 
-  app.param = wrapParamMethod(app.param);
+  app.param = wrapAppMethod(app.param, false);
   app.use = wrapAppMethod(app.use);
   app.all = wrapAppMethod(app.all);
   app.del = app.delete;
 
-  const _route = app.route;
-  app.route = function () {
-    return wrap(_route.apply(this, arguments));
-  };
+  // const _route = app.route;
+  // app.route = function () {
+  //   return wrap(_route.apply(this, arguments));
+  // };
+
+  // 如果有 route 方法则封装
+  if (typeof app.route === 'function') {
+    app.__route = app.route.bind(app);
+    app.route = function (...args) {
+      return wrap(app.__route(...args));
+    };
+  }
 
   return app;
 }
 
-function wrapAppMethod(route) {
+// 将 arguments 转成 array
+function toArray(args) {
+  return Array.prototype.slice.call(args);
+}
+
+function wrapAppMethod(route, withErrorParam) {
   return function () {
-    return route.apply(this, slice.call(arguments).map(convertGenerators));
+    return route.apply(this, slice.call(arguments).map(fn => { return convertGenerators(fn, withErrorParam); }));
   };
 }
 
-function wrapParamMethod(route) {
-  return function (name, fn) {
-    let cb = fn;
-
-    if (isGenerator(fn)) {
-      cb = function (req, res, next, id) {
-        coroutine.wrap(fn).call(this, req, res, id).then(() => !res.finished && next(), next);
-      };
-    }
-
-    return route.call(this, name, cb);
-  };
-}
-
-function convertGenerators(v) {
-  if (!isGenerator(v)) {
-    return v;
+// 调用 handler，并捕捉 Promise 的错误
+function callAndCatchPromiseError(fn, ...args) {
+  // args 最后一个参数如果是如果是 function 则表示 next()
+  // 如果执行时出错，调用 next(err)
+  const next = args[args.length - 1];
+  let p = null;
+  try {
+    p = fn.apply(null, args);
+  } catch (err) {
+    return next(err);
   }
+  if (p && p.then && p.catch) {
+    p.catch(err => next(err));
+  }
+}
 
+function convertGenerators(fn, withErrorParam = true) {
+  if (typeof fn !== 'function') return fn;
+  if (withErrorParam && fn.length > 3) {
+    // error handler
+    // eslint-disable-next-line
+    return function (err, req, res, next) {
+      if (isGenerator(fn)) {
+        return coroutine.wrap(fn).call(this, ...toArray(arguments)).then(() => !res.finished && next(), next);
+      }
+      return callAndCatchPromiseError(fn, ...toArray(arguments));
+    };
+  }
   return function (req, res, next) {
-    coroutine.wrap(v).call(this, req, res).then(() => !res.finished && next(), next);
+    if (isGenerator(fn)) {
+      return coroutine.wrap(fn).call(this, ...toArray(arguments)).then(() => !res.finished && next(), next);
+    }
+    return callAndCatchPromiseError(fn, ...toArray(arguments));
   };
 }
 
