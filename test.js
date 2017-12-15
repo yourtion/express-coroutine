@@ -7,6 +7,9 @@ const request = require('supertest');
 const bodyParser = require('body-parser');
 const async = require('async');
 
+const nodeVersion = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
+const runAsync = nodeVersion >= 7.6;
+
 // eslint-disable-next-line no-unused-vars
 const fn = function (req, res, next) {
   return new Promise((resolve, reject) => {
@@ -29,6 +32,7 @@ const middleware3 = async function (req, res, next) {
   next();
 };
 
+// eslint-disable-next-line no-undef
 describe('generator', function () {
   it('accepts generator as middleware', done => {
     const app = expressCoroutine();
@@ -324,8 +328,10 @@ describe('generator', function () {
   });
 });
 
+// eslint-disable-next-line no-undef
 describe('normal', function () {
 
+if(runAsync) {
   it('get, post, put, delete', function (done) {
 
     const app = expressCoroutine();
@@ -412,7 +418,7 @@ describe('normal', function () {
           .query({ a: 111, b: 222 })
           .end((err, res) => {
             if (err) return next(err);
-            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222 } });
+            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222 }});
             next();
           });
       },
@@ -446,7 +452,7 @@ describe('normal', function () {
           .query({ a: 111, b: 222 })
           .end((err, res) => {
             if (err) return next(err);
-            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, c: 789, d: 888 } });
+            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, c: 789, d: 888 }});
             next();
           });
       },
@@ -477,7 +483,7 @@ describe('normal', function () {
           .query({ a: 111, b: 222 })
           .end((err, res) => {
             if (err) return next(err);
-            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, id: 'test' } });
+            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, id: 'test' }});
             next();
           });
       },
@@ -525,11 +531,13 @@ describe('normal', function () {
     ], done);
 
   });
+}
 
 });
 
+// eslint-disable-next-line no-undef
 describe('error', function () {
-
+  if(runAsync) {
   it('throw error', function (done) {
 
     const app = expressCoroutine();
@@ -589,5 +597,5 @@ describe('error', function () {
     ], done);
 
   });
-
+  }
 });
