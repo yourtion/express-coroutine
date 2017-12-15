@@ -7,9 +7,6 @@ const request = require('supertest');
 const bodyParser = require('body-parser');
 const async = require('async');
 
-const nodeVersion = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
-const runAsync = nodeVersion >= 7.6;
-
 // eslint-disable-next-line no-unused-vars
 const fn = function (req, res, next) {
   return new Promise((resolve, reject) => {
@@ -331,271 +328,267 @@ describe('generator', function () {
 // eslint-disable-next-line no-undef
 describe('normal', function () {
 
-  if(runAsync) {
-    it('get, post, put, delete', function (done) {
+  it('get, post, put, delete', function (done) {
 
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
 
-      router.get('/a', async function (req, res) {
+    router.get('/a', async function (req, res) {
+      res.json(req.query);
+    });
+
+    router.post('/b', async function (req, res) {
+      res.json(req.body);
+    });
+
+    router.put('/c', async function (req, res) {
+      res.json(req.body);
+    });
+
+    router.delete('/d', async function (req, res) {
+      res.json(req.body);
+    });
+
+    async.series([
+      function (next) {
+        request(app)
+          .get('/a')
+          .query({ a: 123 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { a: 123 });
+            next();
+          });
+      },
+      function (next) {
+        request(app)
+          .post('/b')
+          .send({ a: 456 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { a: 456 });
+            next();
+          });
+      },
+      function (next) {
+        request(app)
+          .put('/c')
+          .send({ a: 123, b: 456 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { a: 123, b: 456 });
+            next();
+          });
+      },
+      function (next) {
+        request(app)
+          .delete('/d')
+          .send({ a: 'abcd' })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { a: 'abcd' });
+            next();
+          });
+      },
+    ], done);
+
+  });
+
+  it('all', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router.all('/test', async function (req, res) {
+      res.json({ method: req.method, data: Object.assign(req.query, req.body) });
+    });
+
+    async.series([
+      function (next) {
+        request(app)
+          .get('/test')
+          .query({ a: 111, b: 222 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222 }});
+            next();
+          });
+      },
+    ], done);
+
+  });
+
+  it('use', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router.use(async function (req, res, next) {
+      req.query.c = 789;
+      next();
+    });
+
+    router.get('/test', async function (req, res, next) {
+      req.query.d = 888;
+      next();
+    }, async function (req, res) {
+      res.json({ method: req.method, data: Object.assign(req.query, req.body) });
+    });
+
+    async.series([
+      function (next) {
+        request(app)
+          .get('/test')
+          .query({ a: 111, b: 222 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, c: 789, d: 888 }});
+            next();
+          });
+      },
+    ], done);
+
+  });
+
+  it('param', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router.param('id', async function (req, res, next, id) {
+      req.query.id = id;
+      next();
+    });
+
+    router.get('/:id', async function (req, res) {
+      res.json({ method: req.method, data: Object.assign(req.query, req.body) });
+    });
+
+    async.series([
+      function (next) {
+        request(app)
+          .get('/test')
+          .query({ a: 111, b: 222 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, id: 'test' }});
+            next();
+          });
+      },
+    ], done);
+
+  });
+
+  it('route', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router
+      .route('/test')
+      .get(async function (req, res) {
         res.json(req.query);
-      });
-
-      router.post('/b', async function (req, res) {
+      })
+      .post(bodyParser.json(), async function (req, res) {
         res.json(req.body);
       });
 
-      router.put('/c', async function (req, res) {
-        res.json(req.body);
-      });
-
-      router.delete('/d', async function (req, res) {
-        res.json(req.body);
-      });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/a')
-            .query({ a: 123 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { a: 123 });
-              next();
-            });
-        },
-        function (next) {
-          request(app)
-            .post('/b')
-            .send({ a: 456 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { a: 456 });
-              next();
-            });
-        },
-        function (next) {
-          request(app)
-            .put('/c')
-            .send({ a: 123, b: 456 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { a: 123, b: 456 });
-              next();
-            });
-        },
-        function (next) {
-          request(app)
-            .delete('/d')
-            .send({ a: 'abcd' })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { a: 'abcd' });
-              next();
-            });
-        },
-      ], done);
-
-    });
-
-    it('all', function (done) {
-
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
-
-      router.all('/test', async function (req, res) {
-        res.json({ method: req.method, data: Object.assign(req.query, req.body) });
-      });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/test')
-            .query({ a: 111, b: 222 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222 }});
-              next();
-            });
-        },
-      ], done);
-
-    });
-
-    it('use', function (done) {
-
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
-
-      router.use(async function (req, res, next) {
-        req.query.c = 789;
-        next();
-      });
-
-      router.get('/test', async function (req, res, next) {
-        req.query.d = 888;
-        next();
-      }, async function (req, res) {
-        res.json({ method: req.method, data: Object.assign(req.query, req.body) });
-      });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/test')
-            .query({ a: 111, b: 222 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, c: 789, d: 888 }});
-              next();
-            });
-        },
-      ], done);
-
-    });
-
-    it('param', function (done) {
-
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
-
-      router.param('id', async function (req, res, next, id) {
-        req.query.id = id;
-        next();
-      });
-
-      router.get('/:id', async function (req, res) {
-        res.json({ method: req.method, data: Object.assign(req.query, req.body) });
-      });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/test')
-            .query({ a: 111, b: 222 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { method: 'GET', data: { a: 111, b: 222, id: 'test' }});
-              next();
-            });
-        },
-      ], done);
-
-    });
-
-    it('route', function (done) {
-
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
-
-      router
-        .route('/test')
-        .get(async function (req, res) {
-          res.json(req.query);
-        })
-        .post(bodyParser.json(), async function (req, res) {
-          res.json(req.body);
-        });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/test')
-            .query({ a: 123 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { a: 123 });
-              next();
-            });
-        },
-        function (next) {
-          request(app)
-            .post('/test')
-            .send({ a: 456 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { a: 456 });
-              next();
-            });
-        },
-      ], done);
-
-    });
-  }
-
+    async.series([
+      function (next) {
+        request(app)
+          .get('/test')
+          .query({ a: 123 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { a: 123 });
+            next();
+          });
+      },
+      function (next) {
+        request(app)
+          .post('/test')
+          .send({ a: 456 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { a: 456 });
+            next();
+          });
+      },
+    ], done);
+  });
 });
 
 // eslint-disable-next-line no-undef
 describe('error', function () {
-  if(runAsync) {
-    it('throw error', function (done) {
 
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
+  it('throw error', function (done) {
 
-      router.get('/test', async function (_req, _res) {
-        throw new Error('abcd');
-      });
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
 
-      app.use(function (err, req, res, _next) {
-        res.json({ error: err.message });
-      });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/test')
-            .query({ a: 111, b: 222 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { error: 'abcd' });
-              next();
-            });
-        },
-      ], done);
-
+    router.get('/test', async function (_req, _res) {
+      throw new Error('abcd');
     });
 
-    it('error handler', function (done) {
-
-      const app = expressCoroutine();
-      app.use(bodyParser.json());
-      const router = new expressCoroutine.Router();
-      app.use(router);
-
-      router.get('/test', async function (_req, _res) {
-        throw new Error('abcd');
-      });
-
-      router.use(async function (err, req, res, _next) {
-        res.json({ error: err.message });
-      });
-
-      async.series([
-        function (next) {
-          request(app)
-            .get('/test')
-            .query({ a: 111, b: 222 })
-            .end((err, res) => {
-              if (err) return next(err);
-              assert.deepEqual(res.body, { error: 'abcd' });
-              next();
-            });
-        },
-      ], done);
-
+    app.use(function (err, req, res, _next) {
+      res.json({ error: err.message });
     });
-  }
+
+    async.series([
+      function (next) {
+        request(app)
+          .get('/test')
+          .query({ a: 111, b: 222 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { error: 'abcd' });
+            next();
+          });
+      },
+    ], done);
+
+  });
+
+  it('error handler', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router.get('/test', async function (_req, _res) {
+      throw new Error('abcd');
+    });
+
+    router.use(async function (err, req, res, _next) {
+      res.json({ error: err.message });
+    });
+
+    async.series([
+      function (next) {
+        request(app)
+          .get('/test')
+          .query({ a: 111, b: 222 })
+          .end((err, res) => {
+            if (err) return next(err);
+            assert.deepEqual(res.body, { error: 'abcd' });
+            next();
+          });
+      },
+    ], done);
+
+  });
+
 });
