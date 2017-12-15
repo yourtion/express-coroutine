@@ -3,4 +3,7 @@ module.exports = {
   rules: {
     'require-yield': 'off'
   },
+  parserOptions: {
+    ecmaVersion: 2017
+  },
 };
