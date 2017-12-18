@@ -34,19 +34,11 @@ function getCurrentNodeMethods() {
 
 function wrap(app) {
   const methods = getCurrentNodeMethods();
-  methods.forEach(method => {
-    app[method] = wrapAppMethod(app[method]);
+  methods.concat([ 'use', 'all', 'param' ]).forEach(method => {
+    app[method] = wrapAppMethod(app[method], method !== 'param');
   });
 
-  app.param = wrapAppMethod(app.param, false);
-  app.use = wrapAppMethod(app.use);
-  app.all = wrapAppMethod(app.all);
   app.del = app.delete;
-
-  // const _route = app.route;
-  // app.route = function () {
-  //   return wrap(_route.apply(this, arguments));
-  // };
 
   // 如果有 route 方法则封装
   if (typeof app.route === 'function') {
@@ -89,13 +81,17 @@ function callAndCatchPromiseError(fn, ...args) {
 function convertGenerators(fn, withErrorParam = true) {
   if (typeof fn !== 'function') return fn;
   if (withErrorParam && fn.length > 3) {
-    // error handler
-    // eslint-disable-next-line
+    // eslint-disable-next-line handle-callback-err
     return function (err, req, res, next) {
       if (isGenerator(fn)) {
         return coroutine.wrap(fn).call(this, ...toArray(arguments)).then(() => !res.finished && next(), next);
       }
       return callAndCatchPromiseError(fn, ...toArray(arguments));
+    };
+  }
+  if (!withErrorParam && fn.length >= 3 && isGenerator(fn)) {
+    return function (req, res, next, id) {
+      return coroutine.wrap(fn).call(this, req, res, id).then(() => !res.finished && next(), next);
     };
   }
   return function (req, res, next) {

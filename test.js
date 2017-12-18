@@ -106,20 +106,20 @@ describe('generator', function () {
     request(app).get('/').expect(500, done);
   });
 
-  // it('works with param method', done => {
-  //   const app = expressCoroutine();
-  //   app.use(bodyParser.json());
+  it('works with param method', done => {
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
 
-  //   app.param('user', function* (req, res, id) {
-  //     assert.equal(id, 42);
-  //   });
+    app.param('user', function* (req, res, id) {
+      assert.equal(id, 42);
+    });
 
-  //   app.get('/:user', function* (req, res) {
-  //     res.send('meh');
-  //   });
+    app.get('/:user', function* (req, res) {
+      res.send('meh');
+    });
 
-  //   request(app).get('/42').expect(200, done);
-  // });
+    request(app).get('/42').expect(200, done);
+  });
 
   it('use multiple generator middleware', done => {
     const app = expressCoroutine();
