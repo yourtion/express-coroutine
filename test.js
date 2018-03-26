@@ -315,6 +315,32 @@ describe('generator', function () {
       });
   });
 
+  it('error handler', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router.get('/test', function* (_req, _res) {
+      throw new Error('abcd');
+    });
+
+    router.use(function* (err, req, res, _next) {
+      res.json({ error: err.message });
+    });
+
+    request(app)
+      .get('/test')
+      .query({ a: 111, b: 222 })
+      .end((err, res) => {
+        if (err) return done(err);
+        assert.deepEqual(res.body, { error: 'abcd' });
+        done();
+      });
+
+  });
+
   it('has static method', () => {
     assert.equal(typeof expressCoroutine.static, 'function');
   });
@@ -531,6 +557,32 @@ describe('normal', function () {
 // eslint-disable-next-line no-undef
 describe('error', function () {
 
+  it('origin error handler', function (done) {
+
+    const app = expressCoroutine();
+    app.use(bodyParser.json());
+    const router = new expressCoroutine.Router();
+    app.use(router);
+
+    router.get('/test', function (_req, _res) {
+      throw new Error('abcd');
+    });
+
+    router.use(async function (err, req, res, _next) {
+      res.json({ error: err.message });
+    });
+
+    request(app)
+      .get('/test')
+      .query({ a: 111, b: 222 })
+      .end((err, res) => {
+        if (err) return done(err);
+        assert.deepEqual(res.body, { error: 'abcd' });
+        done();
+      });
+
+  });
+
   it('throw error', function (done) {
 
     const app = expressCoroutine();
@@ -546,19 +598,14 @@ describe('error', function () {
       res.json({ error: err.message });
     });
 
-    async.series([
-      function (next) {
-        request(app)
-          .get('/test')
-          .query({ a: 111, b: 222 })
-          .end((err, res) => {
-            if (err) return next(err);
-            assert.deepEqual(res.body, { error: 'abcd' });
-            next();
-          });
-      },
-    ], done);
-
+    request(app)
+      .get('/test')
+      .query({ a: 111, b: 222 })
+      .end((err, res) => {
+        if (err) return done(err);
+        assert.deepEqual(res.body, { error: 'abcd' });
+        done();
+      });
   });
 
   it('error handler', function (done) {
@@ -576,18 +623,14 @@ describe('error', function () {
       res.json({ error: err.message });
     });
 
-    async.series([
-      function (next) {
-        request(app)
-          .get('/test')
-          .query({ a: 111, b: 222 })
-          .end((err, res) => {
-            if (err) return next(err);
-            assert.deepEqual(res.body, { error: 'abcd' });
-            next();
-          });
-      },
-    ], done);
+    request(app)
+      .get('/test')
+      .query({ a: 111, b: 222 })
+      .end((err, res) => {
+        if (err) return done(err);
+        assert.deepEqual(res.body, { error: 'abcd' });
+        done();
+      });
 
   });
 

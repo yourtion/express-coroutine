@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha test.js",
-    "test-cov": "istanbul cover _mocha  -x 'test.js'",
+    "test-cov": "istanbul cover _mocha -x 'test.js'",
     "test-coveralls": "npm run test-cov && cat ./coverage/lcov.info | coveralls",
     "lint": "eslint index.js test.js --fix",
     "prepublish": "npm run lint && npm run test-coveralls"
